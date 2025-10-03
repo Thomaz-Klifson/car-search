@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+env/
+venv/
+.vscode/
+
+# Data and models
+/data/*
+!/data/cars_sample.json
+*.index
+*.npy
+cars_meta.json
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Secrets
+.env
