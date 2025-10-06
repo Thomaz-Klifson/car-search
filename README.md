@@ -1,26 +1,60 @@
-﻿# Car Search
+﻿# Car Search AI
 
-Protótipo de buscador e marketplace de carros. Esta versão contém uma UI em Next.js e lógica de chat com integração a um modelo generativo (Gemini), além de um backend/infra para preparação de índices e gerenciamento de dados.
+Assistente de vendas automotivo inteligente que utiliza IA para ajudar compradores a encontrar o carro ideal. Construído com Next.js e Gemini AI, oferece uma experiência conversacional personalizada para busca e recomendação de veículos.
 
-## Visão geral
-Este repositório contém o frontend principal em `app/` (Next.js), componentes React, e um pequeno backend para preparação de índices (pasta `backend/`). Os dados de exemplo estão em `data/cars.json`.
+## 🎯 Funcionalidades Principais
 
-## Deploy atual
-- Deploy (feito via Vercel CLI): https://car-chat.vercel.app/
-> Observação: verifique as variáveis de ambiente no painel do Vercel para habilitar integrações com Gemini e Supabase (ver abaixo).
+- **Chat Inteligente**: Interface conversacional que entende linguagem natural e contexto
+- **Busca Avançada**: Filtragem por marca, modelo, preço e localização
+- **Recomendações Personalizadas**: Sugestões baseadas nas preferências do usuário
+- **Visualização de Detalhes**: Modal com informações detalhadas de cada veículo
+- **Interface Responsiva**: Adaptada para desktop e dispositivos móveis
+- **Temas Claro/Escuro**: Suporte a preferências de tema do usuário
 
-## Como rodar localmente
-1. Na raiz do repositório:
+## 🚀 Tecnologias
 
-```powershell
-# Instale dependências (usa pnpm no projeto, mas npm também funciona)
-pnpm install
-pnpm --filter "car-marketplace (1)" dev
+- Frontend: Next.js 14 com App Router
+- UI: Radix UI + Tailwind CSS
+- IA: Google Gemini
+- Backend: Node.js + Python
+- Dados: JSON + Supabase (opcional)
+
+## 💻 Como Executar
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/car-search.git
+cd car-search
 ```
 
-2. Backend (Python)  se for usar a preparação de índice:
+2. Instale as dependências:
+```bash
+pnpm install  # ou npm install
+```
 
-```powershell
+3. Configure as variáveis de ambiente:
+```bash
+# Crie um arquivo .env.local com:
+GEMINI_API_KEY=sua_chave_aqui  # Obrigatório para o chat
+```
+
+4. Execute o projeto:
+```bash
+pnpm dev  # ou npm run dev
+```
+
+## ⚙️ Configuração
+
+### Variáveis de Ambiente
+
+- `GEMINI_API_KEY`: Chave da API do Google Gemini (obrigatória)
+- `NEXT_PUBLIC_SUPABASE_URL`: URL do Supabase (opcional)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Chave anônima do Supabase (opcional)
+
+### Índice de Busca (Opcional)
+
+Para recriar o índice de busca:
+```bash
 cd backend
 python -m venv .venv
 .\.venv\Scripts\activate
@@ -28,14 +62,21 @@ pip install -r requirements.txt
 python prepare_index.py
 ```
 
-## Variáveis de ambiente importantes
-- `GEMINI_API_KEY` (obrigatório para chat com o modelo)  defina no Vercel como variável de ambiente de produção; nunca use `NEXT_PUBLIC_` para chaves secretas.
-- `NEXT_PUBLIC_SUPABASE_URL`  endpoint do Supabase (se usar imagens/armazenamento)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`  chave anônima para chamadas públicas do Supabase
+## 🧪 Casos de Teste
 
-## Notas sobre produção
-- Confirme as variáveis acima no Vercel (Project  Settings  Environment Variables).
-- Se usar o Gemini em produção, garanta que a chave `GEMINI_API_KEY` esteja configurada apenas no ambiente server (não pública).
+A aplicação pode ser testada com os seguintes cenários:
+
+1. ✅ Procurar um carro que existe no JSON
+2. 🪙 Procurar um carro que existe, mas com um valor abaixo do disponível
+3. 🌎 Procurar um carro que existe, mas em outra localidade
+
+## 📦 Deploy
+
+O projeto está configurado para deploy na Vercel:
+
+1. Conecte seu repositório na Vercel
+2. Configure as variáveis de ambiente no painel da Vercel
+3. Deploy será automático a cada push na branch main
 
 ## Plano de Negócios
 
