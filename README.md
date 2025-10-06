@@ -6,8 +6,7 @@ Protótipo de buscador e marketplace de carros. Esta versão contém uma UI em N
 Este repositório contém o frontend principal em `app/` (Next.js), componentes React, e um pequeno backend para preparação de índices (pasta `backend/`). Os dados de exemplo estão em `data/cars.json`.
 
 ## Deploy atual
-- Deploy (feito via Vercel CLI): https://[car-search-pmv3192le-thomazklifsons-projects.vercel.app
-](https://car-marketplace-1-e4yk3l72y-thomazklifsons-projects.vercel.app/)
+- Deploy (feito via Vercel CLI): https://car-chat.vercel.app/
 > Observação: verifique as variáveis de ambiente no painel do Vercel para habilitar integrações com Gemini e Supabase (ver abaixo).
 
 ## Como rodar localmente
