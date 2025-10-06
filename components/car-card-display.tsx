@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { gsap } from "gsap"
+import { CarDetails } from "./car-details"
 
 interface Car {
   Name: string
@@ -62,7 +63,7 @@ export function CarCardDisplay({ cars }: CarCardDisplayProps) {
             <p className="text-sm text-muted-foreground mb-3">Modelo {car.Model}</p>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-2xl font-bold text-green-500">
                   {new Intl.NumberFormat("pt-BR", {
                     style: "currency",
                     currency: "BRL",
@@ -86,10 +87,8 @@ export function CarCardDisplay({ cars }: CarCardDisplayProps) {
                   {car.Location}
                 </p>
               </div>
-              <button className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-colors">
-                Ver detalhes
-              </button>
             </div>
+              <CarDetails car={car} />
           </div>
         </div>
       ))}

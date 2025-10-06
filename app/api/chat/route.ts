@@ -57,7 +57,19 @@ function searchCars(params: {
 
   if (params.name) {
     const searchTerm = params.name.toLowerCase()
-    results = results.filter((car) => car.Name.toLowerCase().includes(searchTerm))
+    results = results.filter((car) => {
+      const carName = car.Name.toLowerCase()
+      const carModel = car.Model.toLowerCase()
+      // Procura por correspondência exata primeiro
+      if (carName.includes(searchTerm) || carModel.includes(searchTerm)) {
+        return true
+      }
+      // Divide o termo de busca e verifica se todas as palavras estão presentes
+      const searchWords = searchTerm.split(/\s+/)
+      return searchWords.every(word => 
+        carName.includes(word) || carModel.includes(word)
+      )
+    })
   }
 
   if (params.location) {
@@ -132,21 +144,24 @@ function parseUserQuery(text: string) {
   // find name/model by matching known names/models from dataset
   let name: string | undefined
   const lowerText = lower
-  for (const c of carsData) {
-    const n = String(c.Name).toLowerCase()
-    const m = String(c.Model).toLowerCase()
-    if (n && lowerText.includes(n)) {
-      // prefer full 'Name Model' if model also present
-      if (m && lowerText.includes(m)) {
+  
+  // Primeiro tenta encontrar correspondência exata
+  const exactMatch = carsData.find(c => 
+    lowerText.includes(String(c.Name).toLowerCase() + " " + String(c.Model).toLowerCase())
+  )
+  
+  if (exactMatch) {
+    name = `${exactMatch.Name} ${exactMatch.Model}`
+  } else {
+    // Se não encontrar correspondência exata, procura por partes
+    for (const c of carsData) {
+      const n = String(c.Name).toLowerCase()
+      const m = String(c.Model).toLowerCase()
+      
+      if ((n && lowerText.includes(n)) || (m && lowerText.includes(m))) {
         name = `${c.Name} ${c.Model}`
-      } else {
-        name = c.Name
+        break
       }
-      break
-    }
-    if (m && lowerText.includes(m)) {
-      name = c.Model
-      break
     }
   }
 
@@ -289,11 +304,6 @@ export async function POST(req: Request) {
     try {
       const initialSearch = searchCars({ name: userMessage })
       if (initialSearch && initialSearch.cars && initialSearch.cars.length > 0) {
-        console.log(
-          "[chat] initialSearch triggered:",
-          initialSearch.cars.length,
-          "carros encontrados imediatamente."
-        )
 
         // envia o resultado inicial antes da resposta textual
         const normalizedInitial = initialSearch.cars.map((c: any) => {
@@ -424,12 +434,7 @@ export async function POST(req: Request) {
         }
 
         if (toolResults.length > 0) {
-          // TEMP LOG: print raw toolResults for debugging
-          try {
-            console.log("[chat] raw toolResults:", JSON.stringify(toolResults, null, 2))
-          } catch (e) {
-            console.log("[chat] raw toolResults (unserializable):", toolResults)
-          }
+
 
           // Normalize car objects so the frontend always finds an image
           const normalized = toolResults.map((res: any) => {

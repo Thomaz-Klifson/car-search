@@ -19,8 +19,9 @@ interface CarDetailsProps {
 export function CarDetails({ car }: CarDetailsProps) {
   return (
     <Dialog>
+      <DialogTitle></DialogTitle>
       <DialogTrigger asChild>
-        <button className="rounded-lg bg-primary px-6 py-2.5 font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
+        <button className="mt-4 w-full rounded-lg bg-primary px-6 py-2.5 font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
           Ver Detalhes
         </button>
       </DialogTrigger>
@@ -35,7 +36,7 @@ export function CarDetails({ car }: CarDetailsProps) {
               <p className="text-sm text-muted-foreground">Modelo: {car.Model}</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-primary">R$ {car.Price.toLocaleString("pt-BR")}</p>
+              <p className="text-2xl font-bold text-green-600">R$ {car.Price.toLocaleString("pt-BR")}</p>
               <Badge className="mt-2">{car.Location}</Badge>
             </div>
           </div>

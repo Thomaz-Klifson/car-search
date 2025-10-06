@@ -1,20 +1,28 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-env/
-venv/
-.vscode/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Data and models
-/data/*
-!/data/cars_sample.json
-*.index
-*.npy
-cars_meta.json
+# dependencies
+/node_modules
 
-# Notebooks checkpoints
-.ipynb_checkpoints/
+# next.js
+/.next/
+/out/
 
-# Secrets
-.env
+# production
+/build
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+.vercel

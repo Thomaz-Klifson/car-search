@@ -1,6 +1,7 @@
 "use client"
 
 import { CarCardDisplay } from "./car-card-display"
+import { Markdown } from "./markdown"
 import { useEffect, useRef } from "react"
 import { gsap } from "gsap"
 
@@ -45,9 +46,7 @@ export function ChatMessage({ role, content, toolResults }: MessageProps) {
           isUser ? "bg-primary text-primary-foreground" : "bg-card border border-border"
         }`}
       >
-        <div className="prose prose-invert max-w-none">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed m-0">{content}</p>
-        </div>
+        <Markdown content={content} className="text-sm leading-relaxed" />
 
         {!isUser && toolResults && toolResults.length > 0 && (
           <div className="mt-3">

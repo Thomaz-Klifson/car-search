@@ -263,7 +263,7 @@ export default function Home() {
             </button>
           </form>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            Powered by Gemini 2.0 Flash • Busca inteligente com IA
+            Powered by Thomaz Klifson • Busca inteligente com IA
           </p>
         </div>
       </div>
