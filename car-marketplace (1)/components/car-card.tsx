@@ -1,7 +1,11 @@
+"use client"
+
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar } from "lucide-react"
 import type { Car } from "@/lib/search-ai"
+import { CarDetails } from "@/components/car-details"
+import { useState } from 'react'
 
 interface CarCardProps {
   car: Car
@@ -16,11 +20,7 @@ export function CarCard({ car, highlight = false }: CarCardProps) {
       }`}
     >
       <div className="relative aspect-video overflow-hidden bg-secondary">
-        <img
-          src={car.Image || "/placeholder.svg"}
-          alt={`${car.Name} ${car.Model}`}
-          className="h-full w-full object-cover"
-        />
+        <CardImage src={car.Image} alt={`${car.Name} ${car.Model}`} />
         {highlight && <Badge className="absolute right-3 top-3 bg-primary text-primary-foreground">Melhor Match</Badge>}
       </div>
       <div className="p-5">
@@ -42,11 +42,29 @@ export function CarCard({ car, highlight = false }: CarCardProps) {
             <p className="text-sm text-muted-foreground">Preço</p>
             <p className="text-2xl font-bold text-primary">R$ {car.Price.toLocaleString("pt-BR")}</p>
           </div>
-          <button className="rounded-lg bg-primary px-6 py-2.5 font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
-            Ver Detalhes
-          </button>
+          <CarDetails car={car} />
         </div>
       </div>
     </Card>
+  )
+}
+
+function CardImage({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
+  const displaySrc = !error && src ? src : '/placeholder.svg'
+  return (
+    <>
+      {!loaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
+      <img
+        src={displaySrc}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => { setError(true); setLoaded(true); console.warn('[ImageFallback] Erro:', src) }}
+        className={`h-full w-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </>
   )
 }

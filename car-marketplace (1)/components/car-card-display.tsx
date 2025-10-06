@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { gsap } from "gsap"
 
 interface Car {
@@ -19,17 +19,18 @@ export function CarCardDisplay({ cars }: CarCardDisplayProps) {
   const cardsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (cardsRef.current) {
-      const cards = cardsRef.current.children
-      gsap.from(cards, {
-        opacity: 0,
-        y: 30,
-        scale: 0.95,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-      })
-    }
+    if (!cardsRef.current) return
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) return
+    const cards = cardsRef.current.children
+    gsap.from(cards, {
+      opacity: 1,
+      y: 30,
+      scale: 0.95,
+      duration: 0.55,
+      stagger: 0.08,
+      ease: 'power2.out'
+    })
   }, [])
 
   if (!cars || cars.length === 0) return null
@@ -55,13 +56,7 @@ export function CarCardDisplay({ cars }: CarCardDisplayProps) {
             })
           }}
         >
-          <div className="relative aspect-video w-full overflow-hidden bg-muted">
-            <img
-              src={car.Image || "/placeholder.svg"}
-              alt={`${car.Name} ${car.Model}`}
-              className="h-full w-full object-cover"
-            />
-          </div>
+          <FadeImage src={car.Image} alt={`${car.Name} ${car.Model}`} />
           <div className="p-4">
             <h3 className="font-semibold text-lg text-foreground">{car.Name}</h3>
             <p className="text-sm text-muted-foreground mb-3">Modelo {car.Model}</p>
@@ -98,6 +93,33 @@ export function CarCardDisplay({ cars }: CarCardDisplayProps) {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+// Internal image component with graceful loading & fallback
+function FadeImage({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false)
+  const [error, setError] = useState(false)
+  const displaySrc = !error && src ? src : '/placeholder.svg'
+  return (
+    <div className="relative aspect-video w-full overflow-hidden bg-muted">
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted/60 to-muted/30" />
+      )}
+      <img
+        src={displaySrc}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => {
+          setError(true)
+          setLoaded(true)
+          console.warn('[ImageFallback] Falha ao carregar imagem:', src)
+        }}
+        className={`h-full w-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
     </div>
   )
 }

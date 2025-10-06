@@ -111,6 +111,62 @@ function getSimilarCars(params: { referenceCar: string; userBudget?: number }) {
     cars: similar.slice(0, 5),
   }
 }
+// Try to extract structured search params (name, location, price) from free-text queries
+function parseUserQuery(text: string) {
+  const lower = text.toLowerCase()
+  // find location by checking known locations
+  const allLocations = Array.from(new Set(carsData.map((c) => c.Location.toLowerCase())))
+  const location = allLocations.find((loc) => lower.includes(loc))
+
+  // find price like R$ 100.000 or 100000
+  const priceMatch = text.match(/r\$\s?([0-9\.\,]+)/i)
+  let maxPrice: number | undefined
+  if (priceMatch) {
+    maxPrice = toNumber(priceMatch[1])
+  } else {
+    // also try to find plain numbers preceded by até or ate
+    const altMatch = text.match(/(?:até|ate)\s?r?\$?\s?([0-9\.\,]+)/i)
+    if (altMatch) maxPrice = toNumber(altMatch[1])
+  }
+
+  // find name/model by matching known names/models from dataset
+  let name: string | undefined
+  const lowerText = lower
+  for (const c of carsData) {
+    const n = String(c.Name).toLowerCase()
+    const m = String(c.Model).toLowerCase()
+    if (n && lowerText.includes(n)) {
+      // prefer full 'Name Model' if model also present
+      if (m && lowerText.includes(m)) {
+        name = `${c.Name} ${c.Model}`
+      } else {
+        name = c.Name
+      }
+      break
+    }
+    if (m && lowerText.includes(m)) {
+      name = c.Model
+      break
+    }
+  }
+
+  return { name, location, maxPrice }
+}
+function suggestAlternatives(query:any) {
+  // tenta expandir termos ou faixas
+  const expanded = getSimilarCars({ referenceCar: query.name, userBudget: query.maxPrice })
+  if (!expanded.found) {
+    const raisedBudget = query.maxPrice * 1.2
+    return searchCars({ ...query, maxPrice: raisedBudget })
+  }
+  return expanded
+}
+function humanizeResponse(text:any) {
+  return text
+    .replace(/Sinto muito/gi, "Vamos encontrar algo incrível!")
+    .replace(/não encontrei/gi, "ainda não encontrei, mas tenho boas opções")
+}
+
 
 // The SDK expects a specific FunctionDeclaration shape. We cast to `any` here
 // to keep the declaration simple in this example. For stricter typing, map
@@ -166,7 +222,7 @@ export async function POST(req: Request) {
   const { messages }: { messages: Message[] } = await req.json()
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
+    model: "gemini-2.0-flash",
     tools: [{ functionDeclarations: tools }],
   })
 
@@ -176,31 +232,42 @@ export async function POST(req: Request) {
     role: "system",
     parts: [
       {
-        text: `Você é um assistente especializado em vendas de carros no Brasil. Seu objetivo é ajudar usuários a encontrar o carro perfeito para suas necessidades.
+        text: `
+ Você é um consultor automotivo especialista em vendas de carros no Brasil. Seu trabalho é convencer de forma honesta e ética — guiando o usuário desde a descoberta até a ação (ex: agendar test drive, ver anúncio, solicitar contato).
 
-PERSONALIDADE:
-- Seja amigável, prestativo e entusiasmado
-- Use linguagem natural e brasileira
-- Seja persuasivo mas honesto
-- Mostre empatia quando o carro exato não estiver disponível
+ OBJETIVO:
+- Encontrar rapidamente opções relevantes e conduzir o usuário a um próximo passo prático.
 
-ESTRATÉGIAS DE VENDA:
-1. Quando o carro existe: Destaque os benefícios e características
-2. Quando o preço é maior: Explique o valor agregado, ofereça financiamento, ou sugira modelos similares mais baratos
-3. Quando a localização é diferente: Mencione possibilidade de entrega, ou mostre opções na cidade desejada
+ PERSONALIDADE:
+- Confiante, persuasivo e empático. Use linguagem clara, calorosa e orientada a benefícios.
+- Mostre autoridade com dados simples (ex: economia estimada, principais diferencias), mas não invente informações.
 
-FORMATO DE RESPOSTA:
-- Sempre use as ferramentas de busca antes de responder
-- Apresente os carros de forma atrativa
-- Inclua preço formatado em R$
-- Mencione localização
-- Faça perguntas para entender melhor as necessidades
-- Seja proativo em oferecer alternativas
+ TÉCNICAS DE PERSUASÃO (use com parcimônia e honestidade):
+ 1) Benefícios primeiro: explique "o que ganha" (economia, conforto, segurança) antes de falar atributos técnicos.
+ 2) Prova social: quando possível, mencionar que "outros compradores têm preferido" ou que "é um modelo popular" (apenas se for verdadeiro/geral).
+ 3) Escassez/urgência sutil: "vagas limitadas" ou "anúncio recente" se aplicável — não afirme prazos falsos.
+ 4) Comparação positiva: mostre alternativas e posicione a opção como a melhor para certas necessidades.
+ 5) CTA claro: sempre termine com um convite de ação (ex: "Quer que eu agende um test drive?", "Posso enviar o contato do vendedor?").
 
-IMPORTANTE:
-- SEMPRE formate preços como R$ 120.000,00
-- Quando mostrar carros, mencione que eles aparecerão em cards visuais
-- Pergunte sobre preferências: orçamento, localização, tipo de carro`,
+ ESTILO DE VENDA PRÁTICO:
+- Reforce valor mesmo se o preço for maior ("custo-benefício", "economia a longo prazo", "tecnologia embarcada").
+- Seja entusiasta: frases curtas e impactantes como "Excelente escolha!" ou "Ótima opção para quem busca...".
+- Ofereça alternativas em formato de lista curta (2–3 opções) com motivo claro para cada uma.
+
+ FORMATAÇÃO E REGRAS:
+- Sempre formate preços como R$ 120.000,00.
+- Mencione localização e marca.
+- Mostre resultados de busca antes de qualquer recomendação (use as ferramentas de busca / fallback).
+- Sempre pergunte algo no final para iniciar um próximo passo (agendar, ver mais, ajustar filtros).
+
+ EXEMPLOS DE CTAs:
+- "Quer que eu agende um test drive para este modelo?"
+- "Deseja que eu filtre só carros com garantia estendida?"
+- "Posso conectar você com o vendedor para negociar um desconto?"
+
+ IMPORTANTE: Seja persuasivo, mas não engane. Não diga que um carro tem recursos que não constam nos dados. Se não tiver confiança sobre algo, ofereça verificar com o vendedor.
+`,
+
       },
     ],
   }
@@ -217,6 +284,58 @@ IMPORTANTE:
 
   const userMessage = messages[messages.length - 1].content
 
+  // 🔍 Se for a primeira interação do usuário, tente buscar carros imediatamente
+  if (messages.length === 1) {
+    try {
+      const initialSearch = searchCars({ name: userMessage })
+      if (initialSearch && initialSearch.cars && initialSearch.cars.length > 0) {
+        console.log(
+          "[chat] initialSearch triggered:",
+          initialSearch.cars.length,
+          "carros encontrados imediatamente."
+        )
+
+        // envia o resultado inicial antes da resposta textual
+        const normalizedInitial = initialSearch.cars.map((c: any) => {
+          const imageUrl = c.Image || c.image || c.imageUrl || null
+          return {
+            ...c,
+            Image: imageUrl,
+            image: imageUrl,
+            formattedPrice: `R$ ${c.Price.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}`,
+          }
+        })
+
+        const encoder = new TextEncoder()
+        const initStream = JSON.stringify({
+          type: "tool_results",
+          data: [{ cars: normalizedInitial }],
+        })
+
+        // cria um stream inicial rápido com os resultados
+        const initialResponse = new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode(`data: ${initStream}\n\n`))
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"))
+            controller.close()
+          },
+        })
+
+        return new Response(initialResponse, {
+          headers: {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+          },
+        })
+      }
+    } catch (e) {
+      console.warn("[chat] initialSearch error:", e)
+    }
+  }
+
   const encoder = new TextEncoder()
   const stream = new ReadableStream({
     async start(controller) {
@@ -228,7 +347,11 @@ IMPORTANTE:
         const maxIterations = 5
         let iteration = 0
 
-        while (typeof response.functionCalls === "function" && response.functionCalls() && iteration < maxIterations) {
+        while (
+          typeof response.functionCalls === "function" &&
+          response.functionCalls() &&
+          iteration < maxIterations
+        ) {
           iteration++
           const functionCalls = response.functionCalls() || []
 
@@ -266,13 +389,80 @@ IMPORTANTE:
           response = result.response
         }
 
+        // (restante do seu código continua igual...)
+
+
+        // If the model didn't call any tools, run a lightweight local
+        // fallback search so we always return car results (including
+        // the `Image` links present in `cars.json`). This ensures the
+        // client always receives images in every situation.
+        if (toolResults.length === 0) {
+          try {
+            const parsed = parseUserQuery(userMessage)
+            const fallbackSearch = searchCars({ name: parsed.name, location: parsed.location, maxPrice: parsed.maxPrice })
+            if (fallbackSearch && fallbackSearch.cars && fallbackSearch.cars.length > 0) {
+              toolResults.push(fallbackSearch)
+            } else {
+              const fallbackSimilar = getSimilarCars({ referenceCar: parsed.name || userMessage, userBudget: parsed.maxPrice })
+              if (fallbackSimilar && fallbackSimilar.cars && fallbackSimilar.cars.length > 0) {
+                toolResults.push(fallbackSimilar)
+              } else {
+                // If still nothing, try the more aggressive suggestion expansion
+                try {
+                  const alt = suggestAlternatives({ name: parsed.name || userMessage, maxPrice: parsed.maxPrice })
+                  if (alt && alt.cars && alt.cars.length > 0) {
+                    toolResults.push(alt)
+                  }
+                } catch (e) {
+                  // ignore
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore fallback errors — we'll still send the assistant text.
+          }
+        }
+
         if (toolResults.length > 0) {
-          const toolData = JSON.stringify({ type: "tool_results", data: toolResults })
+          // TEMP LOG: print raw toolResults for debugging
+          try {
+            console.log("[chat] raw toolResults:", JSON.stringify(toolResults, null, 2))
+          } catch (e) {
+            console.log("[chat] raw toolResults (unserializable):", toolResults)
+          }
+
+          // Normalize car objects so the frontend always finds an image
+          const normalized = toolResults.map((res: any) => {
+            if (res && Array.isArray(res.cars)) {
+              const cars = res.cars.map((c: any) => {
+                const imageUrl = c.Image || c.image || c.imageUrl || null
+                return {
+                  ...c,
+                  Image: imageUrl,
+                  image: imageUrl,
+                }
+              })
+
+              return { ...res, cars }
+            }
+            return res
+          })
+
+          // TEMP LOG: print normalized results
+          try {
+            console.log("[chat] normalized toolResults:", JSON.stringify(normalized, null, 2))
+          } catch (e) {
+            console.log("[chat] normalized toolResults (unserializable):", normalized)
+          }
+
+          const toolData = JSON.stringify({ type: "tool_results", data: normalized })
           controller.enqueue(encoder.encode(`data: ${toolData}\n\n`))
         }
 
-        const text = response.text()
-        const textData = JSON.stringify({ type: "text", data: text })
+  // Post-process assistant text to be more user-friendly
+  const rawText = response.text()
+  const text = humanizeResponse(rawText)
+  const textData = JSON.stringify({ type: "text", data: text })
         controller.enqueue(encoder.encode(`data: ${textData}\n\n`))
 
         controller.enqueue(encoder.encode("data: [DONE]\n\n"))

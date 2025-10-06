@@ -2,70 +2,70 @@
   {
     "Name": "BYD",
     "Model": "Dolphin",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/byd-dolphin.webp",
     "Price": 99990,
     "Location": "São Paulo"
   },
   {
     "Name": "Toyota",
     "Model": "Corolla",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/chevrolet-onix-1.0-flex.jpg",
     "Price": 112000,
     "Location": "São Paulo"
   },
   {
     "Name": "Volkswagen",
     "Model": "T-Cross",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/fiat-pulse-1-3-flex-drive-cvt.webp",
     "Price": 118500,
     "Location": "Campinas"
   },
   {
     "Name": "Honda",
     "Model": "Civic",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/HONDA-CIVIC-2.0-16V-FLEX.jpg",
     "Price": 105000,
     "Location": "Rio de Janeiro"
   },
   {
     "Name": "Chevrolet",
     "Model": "Onix",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/HYUNDAI-HB20-1.0-12V-FLEX-COMFORT-PLUS-MANUAL.jpg",
     "Price": 85000,
     "Location": "Belo Horizonte"
   },
   {
     "Name": "Hyundai",
     "Model": "HB20",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/jeep-renegade-1.3-t270-turbo-flex.jpg",
     "Price": 79000,
     "Location": "São Paulo"
   },
   {
     "Name": "Renault",
     "Model": "Kwid",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/PEUGEOT-208-1.0-FIREFLY-FLEX-LIKE-MANUAl.jpg",
     "Price": 68990,
     "Location": "Curitiba"
   },
   {
     "Name": "Fiat",
     "Model": "Pulse",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/renault-kwid-1-0-12v.webp",
     "Price": 96000,
     "Location": "São Paulo"
   },
   {
     "Name": "Jeep",
     "Model": "Renegade",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/toyota-corolla-2.0-vvtie-flex.jpg",
     "Price": 122000,
     "Location": "Porto Alegre"
   },
   {
     "Name": "Peugeot",
     "Model": "208",
-    "Image": "exemplo.png",
+    "Image": "https://osuswsunkhuirecnbsfj.supabase.co/storage/v1/object/public/chat-cars/VOLKSWAGEN-TCROSS-1.4-250-TSI-TOTAL-FLEX-HIGHLINE-AUTOMATICO.jpg",
     "Price": 87500,
     "Location": "São Paulo"
   }

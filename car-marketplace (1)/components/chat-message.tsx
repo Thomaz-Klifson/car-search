@@ -15,14 +15,15 @@ export function ChatMessage({ role, content, toolResults }: MessageProps) {
   const messageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (messageRef.current) {
-      gsap.from(messageRef.current, {
-        opacity: 1,
-        y: 20,
-        duration: 0.5,
-        ease: "power2.out",
-      })
-    }
+    if (!messageRef.current) return
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReduced) return
+    gsap.from(messageRef.current, {
+      opacity: 1,
+      y: 20,
+      duration: 0.45,
+      ease: 'power2.out'
+    })
   }, [])
 
   return (

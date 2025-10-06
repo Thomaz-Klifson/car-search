@@ -27,7 +27,7 @@ export default function Home() {
     if (headerRef.current) {
       gsap.from(headerRef.current, {
         y: -100,
-        opacity: 0,
+        opacity: 1,
         duration: 0.8,
         ease: "power3.out",
       })
@@ -36,7 +36,7 @@ export default function Home() {
     if (heroRef.current && messages.length === 0) {
       gsap.from(heroRef.current.children, {
         y: 50,
-        opacity: 0,
+        opacity: 1,
         duration: 0.8,
         stagger: 0.1,
         ease: "power3.out",
